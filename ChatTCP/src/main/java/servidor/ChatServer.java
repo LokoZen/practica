@@ -1,4 +1,4 @@
-/*
+do/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -49,22 +49,39 @@ public class ChatServer {
     public ChatServer() {
         clientes = new HashMap<>();
     }
-    
-    public void iniciar() {
+
+    /**
+    * Inicia el servidor y queda escuchando conexiones.
+    */
+    public void iniciarServidor() {
         try (ServerSocket serverSocket = new ServerSocket(PUERTO)) {
-            System.out.println("Server iniciado en puerto " + PUERTO);
+            
+            System.out.println("====================================");
+            System.out.println(" SERVIDOR DE CHAT INICIADO ");
+            System.out.println("Puerto " + PUERTO);
+            System.out.println("====================================");
             
             while (true) {
-                Socket socket = serverSocket.accept();
                 
-                // Verificar límite
+                Socket socket = serverSocket.accept();
+
+                System.out.println(
+                    "Nueva conexión desde:"
+                    + socketCliente.getInetAddress());
+                /**
+                * Verifica límite de usuarios.
+                */    
                 if (clientes.size() >= MAX_CLIENTES) {
-                    System.out.println("Servidor lleno.");
+                    
+                    System.out.println("Conexión rechazada: servidor lleno.");
                     
                     socket.close();
                     continue;
                 }
-                
+
+                /** 
+                * Se crea un hilo para atender al cliente.
+                */
                 ClienteHandler cliente =
                         new ClienteHandler(socket, this);
                 
@@ -74,7 +91,110 @@ public class ChatServer {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+    * Registra un usuario en el servidor.
+    *
+    * @param nombreUsuario nombre elegido por el cliente.
+    * @param clienteHandler Referencia al cliente.
+    * @return true si el nombre es válido y único,
+    * false si ya existe.
+    */
+
+    public synchronized boolean registrarUsuario(
+        String nombreUsusario,
+        ClienteHandler clienteHandler) {
+
+        if (clientes.containsKey(nombreUsuario)) {
+            return false;
+        }
+
+        clientes.put(nombreUsuario, clienteHandler);
+
+        system.out.println(
+            "Usuario conectado: " + nombreUsuario);
+        return true;
+    }
+
+    /**
+    * Elimina un usuario cuando se desconecta.
+    *
+    * @param nombreUsuario usuario a eliminar.
+    */
+    public synchronized void eliminarUsuario(
+        String nombreUsuario) {
+
+        clientes.remove()nombreUsuario;
+
+        System.out.println(
+            "Usuario desconectado: " 
+            + nombreUsuario);
+    }
+
+    /**
+    * Envía un mensaje a todos los usuarios conectados.
+    *
+    * @param mensaje Mensaje formateado.
+    */
+    public synchronized void enviarATodos(
+        String mensaje) {
+
+        for (ClienteHandler cliente
+             : cliente.values()) {
+            
+            cliente.enviarMensaje(mensaje);
+        }
+    }
+
+    /**
+    * Envía un mensaje privado a un usuario específico
+    *
+    * @param destinatario Usuario destino.
+    * @param mensaje Mensaje a enviar.
+    */
+    public synchronized void enviarPrivado(
+        Strign destinatario,
+        String mensaje) {
+
+        ClienteHandler cliente =
+            cliente.get(destinatario);
+
+        if (cliente != null) {
+            cliente.enviarMensaje(mensaje);
+
+        } else {
+            System.out.println(
+                "Usuario no encontrado: "
+                + destinatario);
+        }
+    }
+
+    /**
+    * Verifica si un usuario ya existe.
+    *
+    * @param usuario Nombre a buscar
+    * @return true si existe 
+    */
+    public sunchronized boolean existeUsuario(
+        String usuario) {
+
+        return cliente.containsKey(usuario);
+    }
+
+    /**
+    * Obtiene la cantidad actual de usuarios conectados.
+    *
+    * @return cantidad de usuarios.
+    */
+    public synchrinized int getCantidadClientes() {
+        return clientes.size();
+    }
+
+    /**
+    * Punto de entrada del servidor.ç
+    *
+    * @param args argumentos de líneas de comandos.
+    */
     public static void main(String[] args) {
         ChatServer servidor = new ChatServer();
         servidor.iniciar();
