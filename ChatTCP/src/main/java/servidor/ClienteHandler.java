@@ -14,5 +14,15 @@ package servidor;
  * @author frikz
  */
 public class ClienteHandler {
+
+    public ClienteHandler(Socket socket,
+                          ChatServer servidor) {
+    }
+
+    @Override
+    public void run() {
     
+    }
+
+    public void enviarMensaje(String mensaje);
 }
