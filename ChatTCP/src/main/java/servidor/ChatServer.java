@@ -175,7 +175,7 @@ public class ChatServer {
     * @param usuario Nombre a buscar
     * @return true si existe 
     */
-    public sunchronized boolean existeUsuario(
+    public synchronized boolean existeUsuario(
         String usuario) {
 
         return cliente.containsKey(usuario);
