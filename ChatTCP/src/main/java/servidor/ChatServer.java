@@ -1,8 +1,5 @@
-do/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package servidor;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,13 +11,15 @@ import java.util.Map;
  *
  * ChatServer 
  * 
- * Escucha conexiones.
- * Registra usuarios.
- * Controla el límite de clientes.
- * Mantener lista de clientes.
+ * se encarga de:
+ * 
+ * -Escucha conexiones.
+ * -Registra usuarios.
+ * -Controla el límite de clientes.
+ * -Controlar el límite de clientes.
  * Envia mensajes grupales.
  * Envia mensajes privados.
- * Gestiona desconexiones.
+ * Gestiona desconexiones. 
  * 
  * @author frikz
  */
@@ -63,17 +62,21 @@ public class ChatServer {
             
             while (true) {
                 
+                // Se crea socket para cliente aceptado
                 Socket socket = serverSocket.accept();
 
                 System.out.println(
                     "Nueva conexión desde:"
-                    + socketCliente.getInetAddress());
+                    + socket.getInetAddress());
+                
                 /**
-                * Verifica límite de usuarios.
-                */    
+                 * añade uno a las conexiones actuales
+                 *  y verifica límite de usuarios.
+                 */    
                 if (clientes.size() >= MAX_CLIENTES) {
                     
-                    System.out.println("Conexión rechazada: servidor lleno.");
+                    System.out.println(
+                            "Conexión rechazada: servidor lleno.");
                     
                     socket.close();
                     continue;
@@ -88,6 +91,10 @@ public class ChatServer {
                 new Thread(cliente).start();
             }
         } catch (IOException e) {
+            
+            System.out.println(
+                    "Error al inniciar el servidor.");
+            
             e.printStackTrace();
         }
     }
@@ -102,7 +109,7 @@ public class ChatServer {
     */
 
     public synchronized boolean registrarUsuario(
-        String nombreUsusario,
+        String nombreUsuario,
         ClienteHandler clienteHandler) {
 
         if (clientes.containsKey(nombreUsuario)) {
@@ -111,7 +118,7 @@ public class ChatServer {
 
         clientes.put(nombreUsuario, clienteHandler);
 
-        system.out.println(
+        System.out.println(
             "Usuario conectado: " + nombreUsuario);
         return true;
     }
@@ -119,12 +126,12 @@ public class ChatServer {
     /**
     * Elimina un usuario cuando se desconecta.
     *
-    * @param nombreUsuario usuario a eliminar.
+    * @param nombreUsuario usuario desconectado.
     */
     public synchronized void eliminarUsuario(
         String nombreUsuario) {
 
-        clientes.remove()nombreUsuario;
+        clientes.remove(nombreUsuario);
 
         System.out.println(
             "Usuario desconectado: " 
@@ -140,7 +147,7 @@ public class ChatServer {
         String mensaje) {
 
         for (ClienteHandler cliente
-             : cliente.values()) {
+             : clientes.values()) {
             
             cliente.enviarMensaje(mensaje);
         }
@@ -153,11 +160,11 @@ public class ChatServer {
     * @param mensaje Mensaje a enviar.
     */
     public synchronized void enviarPrivado(
-        Strign destinatario,
+        String destinatario,
         String mensaje) {
 
         ClienteHandler cliente =
-            cliente.get(destinatario);
+            clientes.get(destinatario);
 
         if (cliente != null) {
             cliente.enviarMensaje(mensaje);
@@ -178,7 +185,7 @@ public class ChatServer {
     public synchronized boolean existeUsuario(
         String usuario) {
 
-        return cliente.containsKey(usuario);
+        return clientes.containsKey(usuario);
     }
 
     /**
@@ -186,19 +193,19 @@ public class ChatServer {
     *
     * @return cantidad de usuarios.
     */
-    public synchrinized int getCantidadClientes() {
+    public synchronized int getCantidadClientes() {
         return clientes.size();
     }
 
     /**
-    * Punto de entrada del servidor.ç
+    * Punto de entrada del servidor.
     *
-    * @param args argumentos de líneas de comandos.
+    * @param args argumentos.
     */
     public static void main(String[] args) {
         ChatServer servidor = new ChatServer();
-        servidor.iniciar();
+        servidor.iniciarServidor();
     }
     
 }
-
+    
